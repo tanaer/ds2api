@@ -7,16 +7,13 @@ func findQuotedFunctionCallKeyStart(s string) int {
 	quotedIdx := findFunctionCallKeyStart(lower, `"functioncall"`)
 	bareIdx := findFunctionCallKeyStart(lower, "functioncall")
 
-	if quotedIdx < 0 {
-		return bareIdx
-	}
-	if bareIdx < 0 {
+	// Prefer the quoted JSON key whenever we have a structural match.
+	// Bare-key detection is only for loose payloads where the quoted form
+	// is absent.
+	if quotedIdx >= 0 {
 		return quotedIdx
 	}
-	if bareIdx < quotedIdx {
-		return bareIdx
-	}
-	return quotedIdx
+	return bareIdx
 }
 
 func findFunctionCallKeyStart(lower, key string) int {
