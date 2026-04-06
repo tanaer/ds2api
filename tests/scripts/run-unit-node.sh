@@ -14,7 +14,7 @@ cleanup() {
 }
 trap cleanup EXIT
 
-if ! node --test --test-concurrency=1 tests/node/stream-tool-sieve.test.js tests/node/chat-stream.test.js tests/node/js_compat_test.js "$@" 2>&1 | tee "$NODE_TEST_LOG"; then
+if ! node --test --test-concurrency=1 tests/node/stream-tool-sieve.test.js tests/node/chat-stream.test.js tests/node/js_compat_test.js tests/node/update-script.test.js tests/node/deploy-script.test.js "$@" 2>&1 | tee "$NODE_TEST_LOG"; then
   echo
   echo "[run-unit-node] Node tests failed. 失败摘要如下："
   rg -n "^(not ok|# fail)|ERR_TEST_FAILURE" "$NODE_TEST_LOG" || true

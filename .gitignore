@@ -15,6 +15,7 @@ opencode.json
 *.log
 logs/
 artifacts/
+nohup.out
 
 # Vercel
 .vercel
@@ -59,3 +60,6 @@ Thumbs.db
 # Claude Code
 .claude/
 CLAUDE.local.md
+
+# Local deploy artifacts
+.deploy-backups/

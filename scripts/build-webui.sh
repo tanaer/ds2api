@@ -1,27 +1,52 @@
-#!/bin/bash
-# WebUI 构建脚本
-# 用法: ./scripts/build-webui.sh
+#!/usr/bin/env bash
+set -euo pipefail
 
-set -e
+repo_dir_default="$(cd "$(dirname "$0")/.." && pwd)"
+repo_dir="${DS2API_DEPLOY_ROOT:-$repo_dir_default}"
 
-echo "🔨 Building WebUI..."
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --repo-dir)
+      [ $# -ge 2 ] || {
+        echo "[build-webui] --repo-dir requires a value." >&2
+        exit 1
+      }
+      repo_dir="$2"
+      shift 2
+      ;;
+    -h|--help)
+      cat <<'EOF'
+Usage: ./scripts/build-webui.sh [--repo-dir <path>]
+EOF
+      exit 0
+      ;;
+    *)
+      echo "[build-webui] Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+done
 
-cd "$(dirname "$0")/../webui"
+repo_dir="$(cd "$repo_dir" && pwd)"
+webui_dir="$repo_dir/webui"
+static_index="$repo_dir/static/admin/index.html"
 
-# 检查 node_modules
+echo "[build-webui] Building WebUI in $repo_dir"
+
+cd "$webui_dir"
+
 if [ ! -d "node_modules" ]; then
-    echo "📦 Installing dependencies..."
-    npm install
+  echo "[build-webui] Installing dependencies..."
+  npm install
 fi
 
-# 构建
-echo "🏗️  Running build..."
+echo "[build-webui] Running build..."
 npm run build
 
-if [ ! -f "../static/admin/index.html" ]; then
-    echo "❌ WebUI build failed: static/admin/index.html not found"
-    exit 1
+if [ ! -f "$static_index" ]; then
+  echo "[build-webui] WebUI build failed: $static_index not found" >&2
+  exit 1
 fi
 
-echo "✅ WebUI built successfully!"
-echo "📁 Output: static/admin/"
+echo "[build-webui] WebUI built successfully."
+echo "[build-webui] Output: $repo_dir/static/admin/"

@@ -184,6 +184,30 @@ The server actually binds to `0.0.0.0:5001`, so devices on the same LAN can usua
 
 > **WebUI auto-build**: On first local startup, if `static/admin` is missing, DS2API will auto-run `npm ci` (only when dependencies are missing) and `npm run build -- --outDir static/admin --emptyOutDir` (requires Node.js). You can also build manually: `./scripts/build-webui.sh`
 
+#### One-Command Source Update
+
+If you run or deploy DS2API from a Git checkout, you can update it with:
+
+```bash
+./scripts/update-ds2api.sh
+```
+
+- Preview the planned steps only: `./scripts/update-ds2api.sh --dry-run`
+- Pin to a specific release: `./scripts/update-ds2api.sh --version 3.1.1`
+
+The script fetches official release tags, auto-stashes local uncommitted changes by default, fast-forwards to the target version, and restores your local changes afterward.
+
+If you run DS2API as a Linux `systemd` service directly from this source checkout, you can go one step further with:
+
+```bash
+./scripts/deploy-ds2api.sh
+```
+
+- Deploy the current checkout without pulling updates again: `./scripts/deploy-ds2api.sh --skip-update`
+- Roll back to the most recent backup: `./scripts/rollback-ds2api.sh`
+
+The deploy script backs up the currently running `ds2api` binary and `static/admin` first, then updates, rebuilds, restarts the service, and runs a health check. The rollback script restores the latest backup by default.
+
 ### Option 2: Docker
 
 ```bash

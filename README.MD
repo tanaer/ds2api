@@ -184,6 +184,30 @@ go run ./cmd/ds2api
 
 > **WebUI 自动构建**：本地首次启动时，若 `static/admin` 不存在，会自动尝试执行 `npm ci`（仅在缺少依赖时）和 `npm run build -- --outDir static/admin --emptyOutDir`（需要本机有 Node.js）。你也可以手动构建：`./scripts/build-webui.sh`
 
+#### 源码一键更新
+
+如果你是通过 Git 拉源码运行 / 部署，可以直接执行：
+
+```bash
+./scripts/update-ds2api.sh
+```
+
+- 仅预览将要执行的操作：`./scripts/update-ds2api.sh --dry-run`
+- 锁定到指定版本：`./scripts/update-ds2api.sh --version 3.1.1`
+
+脚本会从官方仓库抓取 Release tag，默认自动 stash 当前未提交修改，快进到目标版本后再恢复本地改动。
+
+如果你当前是 Linux `systemd` 方式直接跑源码目录里的二进制，可以进一步用：
+
+```bash
+./scripts/deploy-ds2api.sh
+```
+
+- 只部署当前源码，不再拉更新：`./scripts/deploy-ds2api.sh --skip-update`
+- 回滚到最近一次备份：`./scripts/rollback-ds2api.sh`
+
+部署脚本会先备份当前运行中的 `ds2api` 二进制和 `static/admin`，再执行更新、构建、重启服务与健康检查；回滚脚本默认恢复最近一次备份。
+
 ### 方式二：Docker 运行
 
 ```bash

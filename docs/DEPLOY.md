@@ -509,6 +509,31 @@ sudo systemctl restart ds2api
 sudo systemctl stop ds2api
 ```
 
+### 6.4 一键更新、部署与回滚
+
+如果你的服务就是像上面这样直接运行源码目录中的二进制，可以使用仓库自带脚本：
+
+```bash
+# 更新到最新 release 后，备份当前程序并直接部署
+./scripts/deploy-ds2api.sh
+
+# 指定版本部署
+./scripts/deploy-ds2api.sh --version 3.1.1
+
+# 当前源码已经更新好，只做备份 + 构建 + 重启
+./scripts/deploy-ds2api.sh --skip-update
+
+# 一键回滚到最近一次备份
+./scripts/rollback-ds2api.sh
+```
+
+说明：
+
+- 部署脚本默认服务名是 `ds2api`，会从对应 systemd unit 中读取 `WorkingDirectory`、`ExecStart` 和 `PORT`。
+- 备份默认保存在仓库根目录 `.deploy-backups/`，包含运行中的 `ds2api` 二进制、`static/admin` 和元数据。
+- 部署完成后会执行 `systemctl restart`，再检查 `systemctl is-active` 和 `http://127.0.0.1:<PORT>/healthz`。
+- 回滚脚本默认恢复最近一次备份；如需指定某个备份目录，可传 `--backup <目录名或绝对路径>`。
+
 ---
 
 ## 七、部署后检查

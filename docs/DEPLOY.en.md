@@ -509,6 +509,31 @@ sudo systemctl restart ds2api
 sudo systemctl stop ds2api
 ```
 
+### 6.4 One-Command Update, Deploy, and Rollback
+
+If your service runs directly from the source checkout as shown above, you can use the built-in scripts:
+
+```bash
+# Update to the latest release, back up the current program, then deploy
+./scripts/deploy-ds2api.sh
+
+# Deploy a specific release
+./scripts/deploy-ds2api.sh --version 3.1.1
+
+# Skip git update and only back up + rebuild + restart
+./scripts/deploy-ds2api.sh --skip-update
+
+# Roll back to the most recent backup
+./scripts/rollback-ds2api.sh
+```
+
+Notes:
+
+- The deploy script defaults to the `ds2api` service name and reads `WorkingDirectory`, `ExecStart`, and `PORT` from the matching systemd unit.
+- Backups are stored in `<repo>/.deploy-backups/` by default and include the running `ds2api` binary, `static/admin`, and metadata.
+- After deployment it runs `systemctl restart`, then verifies both `systemctl is-active` and `http://127.0.0.1:<PORT>/healthz`.
+- The rollback script restores the latest backup by default. Use `--backup <name-or-absolute-path>` to restore a specific backup.
+
 ---
 
 ## 7. Post-Deploy Checks
