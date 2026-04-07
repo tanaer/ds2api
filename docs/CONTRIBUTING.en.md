@@ -59,17 +59,34 @@ docker-compose -f docker-compose.dev.yml up
 
 | Language | Standards |
 | --- | --- |
-| **Go** | Run `./scripts/lint.sh` (gofmt + golangci-lint) and ensure `go test ./...` passes before committing |
+| **Go** | Run `./scripts/lint.sh` (gofmt + golangci-lint) before pushing, and do not ignore cleanup errors from calls such as `Close`, `Flush`, or `Sync` |
 | **JavaScript/React** | Follow existing project style (functional components) |
 | **Commit messages** | Use semantic prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `style:`, `perf:`, `chore:` |
+
+### Required Gates Before Push
+
+- All changes pushed to a remote should pass `./scripts/check-quality-gates.sh` first
+- This script runs the same local gates in sequence:
+  - `./scripts/lint.sh`
+  - `./tests/scripts/check-refactor-line-gate.sh`
+  - `./tests/scripts/run-unit-all.sh`
+  - `npm run build --prefix webui`
+- Install the repository-managed `pre-push` hook to avoid skipping checks:
+
+```bash
+./scripts/install-git-hooks.sh
+```
+
+- After installation, every `git push` runs the gates automatically and blocks the push on any failure
 
 ## Submitting a PR
 
 1. Fork the repo
 2. Create a branch (e.g. `feature/xxx` or `fix/xxx`)
-3. Commit changes
-4. Push your branch
-5. Open a Pull Request
+3. Install the repository hook: `./scripts/install-git-hooks.sh`
+4. Commit changes
+5. Push your branch
+6. Open a Pull Request
 
 > 💡 If you modify files under `webui/`, no manual build is needed — CI handles it automatically.
 > If you want to verify the generated `static/admin/` assets locally, you can still run `./scripts/build-webui.sh`.

@@ -59,17 +59,34 @@ docker-compose -f docker-compose.dev.yml up
 
 | 语言 | 规范 |
 | --- | --- |
-| **Go** | 提交前运行 `./scripts/lint.sh`（包含 gofmt+golangci-lint）并确保 `go test ./...` 通过 |
+| **Go** | 提交前运行 `./scripts/lint.sh`（包含 gofmt+golangci-lint），且不要忽略 `Close` / `Flush` / `Sync` 等清理类错误返回 |
 | **JavaScript/React** | 保持现有代码风格（函数组件） |
 | **提交信息** | 使用语义化前缀：`feat:`、`fix:`、`docs:`、`refactor:`、`style:`、`perf:`、`chore:` |
+
+### 提交前强制检查
+
+- 所有提交到远端的改动都应先通过 `./scripts/check-quality-gates.sh`
+- 该脚本会串行执行：
+  - `./scripts/lint.sh`
+  - `./tests/scripts/check-refactor-line-gate.sh`
+  - `./tests/scripts/run-unit-all.sh`
+  - `npm run build --prefix webui`
+- 推荐在本地启用仓库内置 `pre-push` hook，避免漏跑检查：
+
+```bash
+./scripts/install-git-hooks.sh
+```
+
+- 安装后，每次 `git push` 前会自动执行上述 gate；任何一项失败都会阻止推送
 
 ## 提交 PR
 
 1. Fork 仓库
 2. 创建分支（如 `feature/xxx` 或 `fix/xxx`）
-3. 提交更改
-4. 推送分支
-5. 发起 Pull Request
+3. 安装仓库内置 hook：`./scripts/install-git-hooks.sh`
+4. 提交更改
+5. 推送分支
+6. 发起 Pull Request
 
 > 💡 如果修改了 `webui/` 目录下的文件，无需手动构建——CI 会自动处理。
 > 但如果你本地想验证 `static/admin/` 产物，还是可以手动运行 `./scripts/build-webui.sh`。
